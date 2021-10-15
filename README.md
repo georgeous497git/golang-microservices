@@ -1,6 +1,6 @@
-#Microservices with Go
+# Microservices with Go
 
-##Installing Go
+## Installing Go
 
 1. Follow the steps from:
 
@@ -17,7 +17,6 @@ To Run:
 
 `$ curl -v localhost:9090/`
 
-=============================================================================================
+`$ curl -v localhost:9090/ -d "Text to send"`
 
-Will create and struct to implement the Interface ´HTTP Handler´
 
