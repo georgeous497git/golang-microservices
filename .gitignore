@@ -1,0 +1,11 @@
+# Ignoring files for GoMicroservices project
+#
+#Files from macOS
+.DS_Store
+#
+#Golang folders project 
+bin/
+pkg/
+#
+#Utility files
+*.docx
