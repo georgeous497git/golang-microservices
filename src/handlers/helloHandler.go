@@ -19,7 +19,6 @@ func NewHelloHandler(l *log.Logger) *helloHandler {
 //This signature satisfy the HTTP Handler Interface
 //func (hello *Hello) ServerHTTP(rWriter http.ResponseWriter, request *http.Request) {
 func (hh *helloHandler) ServeHTTP(rWriter http.ResponseWriter, request *http.Request) {
-	hh.l.Println("HELLO WORLD SERVER HTTP GO!!")
 
 	data, error := ioutil.ReadAll(request.Body)
 
