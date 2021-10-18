@@ -7,15 +7,15 @@ import (
 	"net/http"
 )
 
-type goodbyeHandler struct {
+type GoodbyeHandler struct {
 	log *log.Logger
 }
 
-func NewGoodbyeHandler(l *log.Logger) *goodbyeHandler {
-	return &goodbyeHandler{l}
+func NewGoodbyeHandler(l *log.Logger) *GoodbyeHandler {
+	return &GoodbyeHandler{l}
 }
 
-func (gh *goodbyeHandler) ServeHTTP(rWriter http.ResponseWriter, request *http.Request) {
+func (gh *GoodbyeHandler) ServeHTTP(rWriter http.ResponseWriter, request *http.Request) {
 
 	data, error := ioutil.ReadAll(request.Body)
 

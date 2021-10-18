@@ -7,18 +7,18 @@ import (
 	"net/http"
 )
 
-type helloHandler struct {
+type HelloHandler struct {
 	l *log.Logger
 }
 
 //This function will return de Hello Handler (NOTE: We are implementing Dependecy Injection due to log.Logger)
-func NewHelloHandler(l *log.Logger) *helloHandler {
-	return &helloHandler{l}
+func NewHelloHandler(l *log.Logger) *HelloHandler {
+	return &HelloHandler{l}
 }
 
 //This signature satisfy the HTTP Handler Interface
 //func (hello *Hello) ServerHTTP(rWriter http.ResponseWriter, request *http.Request) {
-func (hh *helloHandler) ServeHTTP(rWriter http.ResponseWriter, request *http.Request) {
+func (hh *HelloHandler) ServeHTTP(rWriter http.ResponseWriter, request *http.Request) {
 
 	data, error := ioutil.ReadAll(request.Body)
 

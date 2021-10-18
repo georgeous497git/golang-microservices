@@ -10,20 +10,44 @@ import (
 	"time"
 )
 
+var serveMux = http.NewServeMux()
+
 func main() {
 
 	log.Println("Server is listening...")
 
 	logger := log.New(os.Stdout, "go-microservices", log.LstdFlags)
 
-	//Creating reference to Hello Handler
-	handlerHomePath := handlers.NewHelloHandler(logger)
-	handlerGoodbyePath := handlers.NewGoodbyeHandler(logger)
+	execHelloGoodbyeHandler(logger)
 
+}
+
+func execHelloGoodbyeHandler(l *log.Logger) {
+
+	helloHandle, goodbyeHandle := callHelloGoodbayHandler(l)
+	setHandle("/", helloHandle)
+	setHandle("/goodbye", goodbyeHandle)
+
+	configureServeMux(helloHandle, goodbyeHandle)
+}
+
+func callHelloGoodbayHandler(logger *log.Logger) (*handlers.HelloHandler, *handlers.GoodbyeHandler) {
+	//Creating reference to Hello Handler
+	helloHandle := handlers.NewHelloHandler(logger)
+	goodbyeHandle := handlers.NewGoodbyeHandler(logger)
+
+	return helloHandle, goodbyeHandle
+}
+
+func setHandle(path string, handle http.Handler) {
+	serveMux.Handle(path, handle)
+}
+
+func configureServeMux(helloHandler http.Handler, goodbyeHandler http.Handler) {
 	//Creating the instance for the ServeMux which will Handle the New Hello Handler
-	serveMux := http.NewServeMux()
-	serveMux.Handle("/", handlerHomePath)
-	serveMux.Handle("/goodbye", handlerGoodbyePath)
+	//serveMux := http.NewServeMux()
+	//serveMux.Handle("/", helloHandler)
+	//serveMux.Handle("/goodbye", goodbyeHandler)
 
 	server := &http.Server{
 		Addr:         ":9090",
