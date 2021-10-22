@@ -1,7 +1,5 @@
 # Microservices with Go
 
-## Installing Go
-
 1. Follow the steps from: https://golang.org/doc/install
 
 2. Starting with Serve HTTP
