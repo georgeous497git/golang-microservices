@@ -18,8 +18,22 @@ func main() {
 
 	logger := log.New(os.Stdout, "go-microservices", log.LstdFlags)
 
-	execHelloGoodbyeHandler(logger)
+	//execHelloGoodbyeHandler(logger)
+	execProductHandler(logger)
 
+	configureServeMux()
+}
+
+func execProductHandler(l *log.Logger) {
+	productHandle := callProductHandler(l)
+	//setHandle("/products", productHandle)
+	setHandle("/", productHandle)
+	//configureServeMux()
+}
+
+func callProductHandler(l *log.Logger) *handlers.ProductsHandler {
+	productHandle := handlers.NewProductsHandler(l)
+	return productHandle
 }
 
 func execHelloGoodbyeHandler(l *log.Logger) {
@@ -28,7 +42,7 @@ func execHelloGoodbyeHandler(l *log.Logger) {
 	setHandle("/", helloHandle)
 	setHandle("/goodbye", goodbyeHandle)
 
-	configureServeMux(helloHandle, goodbyeHandle)
+	//configureServeMux()
 }
 
 func callHelloGoodbayHandler(logger *log.Logger) (*handlers.HelloHandler, *handlers.GoodbyeHandler) {
@@ -43,7 +57,7 @@ func setHandle(path string, handle http.Handler) {
 	serveMux.Handle(path, handle)
 }
 
-func configureServeMux(helloHandler http.Handler, goodbyeHandler http.Handler) {
+func configureServeMux() {
 	//Creating the instance for the ServeMux which will Handle the New Hello Handler
 	//serveMux := http.NewServeMux()
 	//serveMux.Handle("/", helloHandler)
