@@ -8,9 +8,12 @@ import (
 	"os"
 	"os/signal"
 	"time"
+
+	"github.com/gorilla/mux"
 )
 
-var serveMux = http.NewServeMux()
+// Global initialization for Gorilla implementation
+var serveMux *mux.Router
 
 func main() {
 
@@ -18,50 +21,34 @@ func main() {
 
 	logger := log.New(os.Stdout, "go-microservices", log.LstdFlags)
 
-	//execHelloGoodbyeHandler(logger)
-	execProductHandler(logger)
-
+	initializeGorillaRouter()
+	setHttpMethodToHandler(logger)
 	configureServeMux()
 }
 
-func execProductHandler(l *log.Logger) {
+func initializeGorillaRouter() {
+	// Gorilla implementation
+	serveMux = mux.NewRouter()
+}
+
+func setHttpMethodToHandler(l *log.Logger) {
 	productHandle := callProductHandler(l)
-	//setHandle("/products", productHandle)
-	setHandle("/", productHandle)
-	//configureServeMux()
+
+	// Making subrouter for main Router specifing HTTP verb GET
+	routerGet := serveMux.Methods(http.MethodGet).Subrouter()
+	routerGet.HandleFunc("/products", productHandle.GetProducts)
+
+	// Making subrouter for main Router specifing HTTP verb PUT
+	routerPut := serveMux.Methods(http.MethodPut).Subrouter()
+	routerPut.HandleFunc("/products/{id:[0-9]+}", productHandle.UpdateProduct)
 }
 
 func callProductHandler(l *log.Logger) *handlers.ProductsHandler {
-	productHandle := handlers.NewProductsHandler(l)
-	return productHandle
-}
-
-func execHelloGoodbyeHandler(l *log.Logger) {
-
-	helloHandle, goodbyeHandle := callHelloGoodbayHandler(l)
-	setHandle("/", helloHandle)
-	setHandle("/goodbye", goodbyeHandle)
-
-	//configureServeMux()
-}
-
-func callHelloGoodbayHandler(logger *log.Logger) (*handlers.HelloHandler, *handlers.GoodbyeHandler) {
-	//Creating reference to Hello Handler
-	helloHandle := handlers.NewHelloHandler(logger)
-	goodbyeHandle := handlers.NewGoodbyeHandler(logger)
-
-	return helloHandle, goodbyeHandle
-}
-
-func setHandle(path string, handle http.Handler) {
-	serveMux.Handle(path, handle)
+	return handlers.NewProductsHandler(l)
 }
 
 func configureServeMux() {
 	//Creating the instance for the ServeMux which will Handle the New Hello Handler
-	//serveMux := http.NewServeMux()
-	//serveMux.Handle("/", helloHandler)
-	//serveMux.Handle("/goodbye", goodbyeHandler)
 
 	server := &http.Server{
 		Addr:         ":9090",

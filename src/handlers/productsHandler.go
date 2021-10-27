@@ -4,8 +4,9 @@ import (
 	"data"
 	"log"
 	"net/http"
-	"regexp"
 	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 type ProductsHandler struct {
@@ -16,6 +17,61 @@ func NewProductsHandler(l *log.Logger) *ProductsHandler {
 	return &ProductsHandler{l}
 }
 
+func (ph *ProductsHandler) GetProducts(rw http.ResponseWriter, rq *http.Request) {
+	productList := data.GetProducts()
+	error := productList.ToJson(rw)
+
+	if error != nil {
+		http.Error(rw, "Unable to marshal json", http.StatusInternalServerError)
+	}
+}
+
+func (ph *ProductsHandler) AddProduct(rw http.ResponseWriter, rq *http.Request) {
+	ph.l.Println("Handle POST Product")
+
+	product := &data.Product{}
+	error := product.FromJson(rq.Body)
+	if error != nil {
+		http.Error(rw, "Unable to unmarshal json", http.StatusBadRequest)
+	}
+
+	data.AddProduct(product)
+}
+
+func (ph *ProductsHandler) UpdateProduct(rw http.ResponseWriter, rq *http.Request) {
+
+	//Gorilla Mux provides and method ´mux.Vars(rq) to get the variables from request object´
+	variables := mux.Vars(rq)
+	id, error := strconv.Atoi(variables["id"])
+
+	if error != nil {
+		http.Error(rw, "Unable to convert id", http.StatusBadRequest)
+		return
+	}
+
+	ph.l.Println("Handle PUT Product")
+
+	product := &data.Product{}
+	error = product.FromJson(rq.Body)
+
+	if error != nil {
+		http.Error(rw, "Unable to unmarshal json", http.StatusBadRequest)
+	}
+
+	error = data.UpdateProduct(id, product)
+
+	if error == data.ErrProductNotFound {
+		http.Error(rw, "Product not found", http.StatusNotFound)
+		return
+	}
+
+	if error != nil {
+		http.Error(rw, "Product not found", http.StatusInternalServerError)
+		return
+	}
+}
+
+/*
 func (ph *ProductsHandler) ServeHTTP(rw http.ResponseWriter, rq *http.Request) {
 
 	if rq.Method == http.MethodGet {
@@ -34,48 +90,6 @@ func (ph *ProductsHandler) ServeHTTP(rw http.ResponseWriter, rq *http.Request) {
 	}
 
 	rw.WriteHeader(http.StatusMethodNotAllowed)
-}
-
-func (ph *ProductsHandler) getProducts(rw http.ResponseWriter, rq *http.Request) {
-	productList := data.GetProducts()
-	error := productList.ToJson(rw)
-
-	if error != nil {
-		http.Error(rw, "Unable to marshal json", http.StatusInternalServerError)
-	}
-}
-
-func (ph *ProductsHandler) addProduct(rw http.ResponseWriter, rq *http.Request) {
-	ph.l.Println("Handle POST Product")
-
-	product := &data.Product{}
-	error := product.FromJson(rq.Body)
-	if error != nil {
-		http.Error(rw, "Unable to unmarshal json", http.StatusBadRequest)
-	}
-
-	data.AddProduct(product)
-}
-
-func (ph *ProductsHandler) updateProduct(id int, rw http.ResponseWriter, rq *http.Request) {
-	ph.l.Println("Handle PUT Product")
-
-	product := &data.Product{}
-	error := product.FromJson(rq.Body)
-	if error != nil {
-		http.Error(rw, "Unable to unmarshal json", http.StatusBadRequest)
-	}
-
-	error = data.UpdateProduct(id, product)
-	if error == data.ErrProductNotFound {
-		http.Error(rw, "Product not found", http.StatusNotFound)
-		return
-	}
-
-	if error != nil {
-		http.Error(rw, "Product not found", http.StatusInternalServerError)
-		return
-	}
 }
 
 func (ph *ProductsHandler) execMethodGet(rw http.ResponseWriter, rq *http.Request) {
@@ -110,3 +124,4 @@ func (ph *ProductsHandler) execMethodPut(rw http.ResponseWriter, rq *http.Reques
 
 	ph.updateProduct(id, rw, rq)
 }
+*/
