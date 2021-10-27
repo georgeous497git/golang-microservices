@@ -6,6 +6,7 @@
 #Golang folders project 
 bin/
 pkg/
+src/main
 src/github.com/*
 #
 #Utility files
