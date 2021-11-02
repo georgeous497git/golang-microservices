@@ -41,10 +41,12 @@ func setHttpMethodToHandler(l *log.Logger) {
 	// Making subrouter for main Router specifing HTTP verb PUT
 	routerPut := serveMux.Methods(http.MethodPut).Subrouter()
 	routerPut.HandleFunc("/products/{id:[0-9]+}", productHandle.UpdateProduct)
+	routerPut.Use(productHandle.MiddlewareProductValidation)
 
-	// Making subrouter for main Router specifing HTTP verb PUT
+	// Making subrouter for main Router specifing HTTP verb POST
 	routerPost := serveMux.Methods(http.MethodPost).Subrouter()
 	routerPost.HandleFunc("/products", productHandle.AddProduct)
+	routerPost.Use(productHandle.MiddlewareProductValidation)
 }
 
 func callProductHandler(l *log.Logger) *handlers.ProductsHandler {
