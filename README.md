@@ -1,8 +1,6 @@
 # Microservices with Go
 
-1. Follow the steps from: https://golang.org/doc/install
-
-2. Starting with Serve HTTP
+1. Starting with Serve HTTP
 
 	In Golang we need to use the “http” package that provides the Server instance, also we should declare the method “HandleFunc” that register a function to a given path on a thing called “default serve MUX” which is a http handler that redirect paths. 
 
@@ -10,35 +8,63 @@ To Run:
 
 `$ go run main.go`
 
+2. Implementing Gorilla WebToolkit
 
-In a different terminal execute the following curl command:
+	To install Gorilla use the following command, located in the project's path:
 
-`$ curl -v localhost:9090/`
+`$ go get github.com/gorilla/mux`
 
-`$ curl -v localhost:9090/ -d "Text to send"`
+Implementing the function 'mux.NewRouter' that provides a lot of good functionality.
+
+Also it was possible to implement the 'Subrouter' method to specify the functionality for a HTTP Mehod.
+
+As we know, it was possible to specify operations for each HTTP Method and the URI it was updated using the context '/products'
+
+To execute HTTP GET operation:
+
+`$ curl -v localhost:9090/products`
 
 
-3. RESTful services
+To execute HTTP POST operation:
 
-	One of the most common services that you will use, implementing the software architectural style REST (Representational State Transfer).
+`$ curl -v localhost:9090/products -d '{"name":"tea", "description":"cup of tea", "price":3.50, "sku":"ct3"}'`
 
-We will implement the 'encoding/json' go package to return data responded by ServeHTTP marshalling a struct into a json.
 
-`$ curl -v localhost:9090/products -XGET -v`
+To execute HTTP PUT operation:
 
-4. RESTful service HTTP operations
+`$ curl -v localhost:9090/products/1 -XPUT -d '{"name":"new tea", "description":"new cup of tea"}'`
 
-	When we execute the curl command without parameters by default the GET operation will be triggered, but if you send data using the option -d the POST operation will be triggered, otherwise if you want to update a register you should specify the PUT operation.
+3. Implementing a Validator with a Custom Validation Function 
 
-If you want to get data from the service, use:
+	For more information go to: https://github.com/go-playground/validator and https://pkg.go.dev/gopkg.in/go-playground/validator.v10
 
-`$ curl -v localhost:9090/ -XGET -v` or `$ curl -v localhost:9090`
+Package validator implements value validations for structs and individual fields based on tags.
 
-If you want to create a new register, use:
+Implementing the validator in the properties for Product struct using the tag `validate`
 
-`$ curl -v localhost:9090/ -XPOST -d '{"id":"1", "name":"tea", "description":"cup of tea", "price":"3.50", "sku":"ct1"}'`
+```
+type Product struct {
+	Id          int     `json:"id"`
+	Name        string  `json:"name" validate:"required"`
+	Description string  `json:"description"`
+	Price       float32 `json:"price" validate:"gt=0"`
+	Sku         string  `json:"sku" validate:"required,skuFormat"`
+	CreatedOn   string  `json:"-"`
+	UpdatedOn   string  `json:"-"`
+	DeletedOn   string  `json:"-"`
+}
+```
 
-If you want to update a register, use:
+4. Implementing Testing 
 
-`curl -v localhost:9090/1 -XPUT -d '{"name":"new tea", "description":"new cup of tea"}'`
+Within the package `test` the funtion `TestCheckValidation` was implemented, that function recive one parameter belonging to the `testing` package from GoLang.
+
+Testing function
+`func TestCheckValidation(t *testing.T)`
+
+To run the test function just click on the link `run test` above of the function name.
+
+
+
+
 

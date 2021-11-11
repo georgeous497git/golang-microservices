@@ -1,11 +1,14 @@
 package handlers
 
 import (
+	"context"
 	"data"
+	"fmt"
 	"log"
 	"net/http"
-	"regexp"
 	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 type ProductsHandler struct {
@@ -16,27 +19,7 @@ func NewProductsHandler(l *log.Logger) *ProductsHandler {
 	return &ProductsHandler{l}
 }
 
-func (ph *ProductsHandler) ServeHTTP(rw http.ResponseWriter, rq *http.Request) {
-
-	if rq.Method == http.MethodGet {
-		ph.execMethodGet(rw, rq)
-		return
-	}
-
-	if rq.Method == http.MethodPost {
-		ph.execMethodPost(rw, rq)
-		return
-	}
-
-	if rq.Method == http.MethodPut {
-		ph.execMethodPut(rw, rq)
-		return
-	}
-
-	rw.WriteHeader(http.StatusMethodNotAllowed)
-}
-
-func (ph *ProductsHandler) getProducts(rw http.ResponseWriter, rq *http.Request) {
+func (ph *ProductsHandler) GetProducts(rw http.ResponseWriter, rq *http.Request) {
 	productList := data.GetProducts()
 	error := productList.ToJson(rw)
 
@@ -45,28 +28,30 @@ func (ph *ProductsHandler) getProducts(rw http.ResponseWriter, rq *http.Request)
 	}
 }
 
-func (ph *ProductsHandler) addProduct(rw http.ResponseWriter, rq *http.Request) {
+func (ph *ProductsHandler) AddProduct(rw http.ResponseWriter, rq *http.Request) {
 	ph.l.Println("Handle POST Product")
 
-	product := &data.Product{}
-	error := product.FromJson(rq.Body)
-	if error != nil {
-		http.Error(rw, "Unable to unmarshal json", http.StatusBadRequest)
-	}
+	product := rq.Context().Value(KeyProduct{}).(data.Product)
 
-	data.AddProduct(product)
+	data.AddProduct(&product)
 }
 
-func (ph *ProductsHandler) updateProduct(id int, rw http.ResponseWriter, rq *http.Request) {
+func (ph *ProductsHandler) UpdateProduct(rw http.ResponseWriter, rq *http.Request) {
+
 	ph.l.Println("Handle PUT Product")
 
-	product := &data.Product{}
-	error := product.FromJson(rq.Body)
+	//Gorilla Mux provides and method ´mux.Vars(rq) to get the variables from request object´
+	variables := mux.Vars(rq)
+	id, error := strconv.Atoi(variables["id"])
+
 	if error != nil {
-		http.Error(rw, "Unable to unmarshal json", http.StatusBadRequest)
+		http.Error(rw, "Unable to convert id", http.StatusBadRequest)
+		return
 	}
 
-	error = data.UpdateProduct(id, product)
+	product := rq.Context().Value(KeyProduct{}).(data.Product)
+	error = data.UpdateProduct(id, &product)
+
 	if error == data.ErrProductNotFound {
 		http.Error(rw, "Product not found", http.StatusNotFound)
 		return
@@ -78,35 +63,36 @@ func (ph *ProductsHandler) updateProduct(id int, rw http.ResponseWriter, rq *htt
 	}
 }
 
-func (ph *ProductsHandler) execMethodGet(rw http.ResponseWriter, rq *http.Request) {
-	ph.getProducts(rw, rq)
-}
+type KeyProduct struct{}
 
-func (ph *ProductsHandler) execMethodPost(rw http.ResponseWriter, rq *http.Request) {
-	ph.addProduct(rw, rq)
-}
+func (p ProductsHandler) MiddlewareProductValidation(nextHandler http.Handler) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, rq *http.Request) {
+		product := data.Product{}
 
-func (ph *ProductsHandler) execMethodPut(rw http.ResponseWriter, rq *http.Request) {
-	regex := regexp.MustCompile("/([0-9]+)")
-	group := regex.FindAllStringSubmatch(rq.URL.Path, -1)
+		error := product.FromJson(rq.Body)
+		if error != nil {
+			p.l.Println("[ERROR] Unable to parse product", error)
+			http.Error(
+				rw,
+				fmt.Sprintf("Unable to unmarshal json: %s", error),
+				http.StatusBadRequest)
+			return
+		}
 
-	if len(group) != 1 {
-		http.Error(rw, "Invalid URI", http.StatusBadRequest)
-		return
-	}
+		//Validate the product
+		error = product.Validate()
+		if error != nil {
+			p.l.Println("[ERROR] Unable to validate product", error)
+			http.Error(
+				rw,
+				fmt.Sprintf("Unable to validate product: %s", error),
+				http.StatusBadRequest)
+			return
+		}
 
-	if len(group[0]) != 2 {
-		http.Error(rw, "Invalid URI", http.StatusBadRequest)
-		return
-	}
+		contxt := context.WithValue(rq.Context(), KeyProduct{}, product)
+		request := rq.WithContext(contxt)
 
-	idString := group[0][1]
-	id, error := strconv.Atoi(idString)
-	if error != nil {
-		ph.l.Println(rw, "Invalid URI unable to convert to number", idString)
-		http.Error(rw, "Invalid URI", http.StatusBadRequest)
-		return
-	}
-
-	ph.updateProduct(id, rw, rq)
+		nextHandler.ServeHTTP(rw, request)
+	})
 }
