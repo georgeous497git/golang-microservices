@@ -65,6 +65,34 @@ Testing function
 To run the test function just click on the link `run test` above of the function name.
 
 
+ 5. Installing Swagger for Go
 
+ brew tap go-swagger/go-swagger
+ brew install go-swagger
 
+ 6. Implementing Swagger
+
+ Create a new file `Makefile` into the `src` folder and add the following code:
+```
+check_install:
+	which swagger || { echo "Installing swagger..." >&2; exit 1; } || GO111MODULE=off go get -u github.com/go-swagger/go-swagger/cmd/swagger
+
+swagger: check_install
+	GO111MODULE=off swagger generate spec -o ./swagger.yaml --scan-models
+```
+Adding swagger:meta annotation to generate the swagger.yaml file:
+Into the main go file for Handlers, in this project example, `productHandlers.go`, add the `swagger:meta` code example from the following link: https://goswagger.io/use/spec/meta.html
+
+Adding swagger:route annotation to improve the swagger.yaml file:
+Into the go file that contains the HTTP call definition, in this project example, `readProducts.go`, add the `swagger:route` code example from the following link: https://goswagger.io/use/spec/route.html
+
+Adding swagger:response annotation to improve the swagger.yaml file:
+Into the go file that contains handler definition, in this project example, `productsHandlet.go`, add the following pice of code to declare a method to define a response:
+```
+type productResponse struct {
+	// in: body
+	Body []data.Product
+}
+```
+Then add the `swagger:response` code example from the following link: https://goswagger.io/use/spec/response.html
 
