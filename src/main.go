@@ -9,11 +9,14 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/go-openapi/runtime/middleware"
 	"github.com/gorilla/mux"
 )
 
 // Global initialization for Gorilla implementation
 var serveMux *mux.Router
+var swaggerYamlFileName string = "swaggerAPI-Products.yaml"
+var dirSwaggerYamlFile string = "../"
 
 func main() {
 
@@ -47,6 +50,17 @@ func setHttpMethodToHandler(l *log.Logger) {
 	routerPost := serveMux.Methods(http.MethodPost).Subrouter()
 	routerPost.HandleFunc("/products", productHandle.AddProduct)
 	routerPost.Use(productHandle.MiddlewareProductValidation)
+
+	// Making subrouter for swagger documentation UI
+	routerSwagger := serveMux.Methods(http.MethodGet).Subrouter()
+	routerSwagger.Handle("/docs", frameMiddlewareDocs())
+	routerSwagger.Handle("/" + swaggerYamlFileName, http.FileServer(http.Dir(dirSwaggerYamlFile)))
+
+}
+
+func frameMiddlewareDocs() http.Handler{
+	options := middleware.RedocOpts{SpecURL: "/" + swaggerYamlFileName}
+	return middleware.Redoc(options, nil)
 }
 
 func callProductHandler(l *log.Logger) *handlers.ProductsHandler {

@@ -16,7 +16,6 @@
 package handlers
 
 import (
-	"data"
 	"log"
 )
 
@@ -29,10 +28,3 @@ func NewProductsHandler(l *log.Logger) *ProductsHandler {
 }
 
 type KeyProduct struct{}
-
-// This method is not used into the logic of the application, but is used to create the swagger documentation response
-// swagger:response productsResponse
-type productResponse struct {
-	// in: body
-	Body []data.Product
-}

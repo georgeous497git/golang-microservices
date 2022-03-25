@@ -78,7 +78,7 @@ check_install:
 	which swagger || { echo "Installing swagger..." >&2; exit 1; } || GO111MODULE=off go get -u github.com/go-swagger/go-swagger/cmd/swagger
 
 swagger: check_install
-	GO111MODULE=off swagger generate spec -o ./swagger.yaml --scan-models
+	GO111MODULE=off swagger generate spec -o ../swaggerAPI-Products.yaml --scan-models
 ```
 Adding swagger:meta annotation to generate the swagger.yaml file:
 Into the main go file for Handlers, in this project example, `productHandlers.go`, add the `swagger:meta` code example from the following link: https://goswagger.io/use/spec/meta.html
@@ -87,7 +87,7 @@ Adding swagger:route annotation to improve the swagger.yaml file:
 Into the go file that contains the HTTP call definition, in this project example, `readProducts.go`, add the `swagger:route` code example from the following link: https://goswagger.io/use/spec/route.html
 
 Adding swagger:response annotation to improve the swagger.yaml file:
-Into the go file that contains handler definition, in this project example, `productsHandlet.go`, add the following pice of code to declare a method to define a response:
+Into the go file that contains handler definition, in this project example, `productsHandler.go`, add the following pice of code to declare a method to define a response:
 ```
 type productResponse struct {
 	// in: body
@@ -96,3 +96,43 @@ type productResponse struct {
 ```
 Then add the `swagger:response` code example from the following link: https://goswagger.io/use/spec/response.html
 
+To verify that the generation of the swagger documentation, open a new terminal and got to the directory where the Makefile file was created and run the following command:
+
+`$ make swagger`
+
+The you will find the swagger documentation in the `swaggerAPI-Products.yaml` file.
+
+7. Exposing the Swagger documentation & UI
+
+To install the middlaware package to expose the swagger documentation, go to the `src` folder and run the following command:
+
+`$ go get github.com/go-swagger/go-swagger/httpkit/middleware`
+
+Then add the following code to the `main.go` file into the `func setHttpMethodToHandler`:
+```
+// Making subrouter for swagger documentation
+routerSwagger := serveMux.Methods(http.MethodGet).Subrouter()
+routerSwagger.Handle("/docs", frameMiddlewareDocs())
+routerSwagger.Handle("/" + swaggerYamlFileName, http.FileServer(http.Dir(dirSwaggerYamlFile)))
+```
+Also add the following code to the `main.go` file:
+```
+func frameMiddlewareDocs() http.Handler{
+	options := middleware.RedocOpts{SpecURL: "/" + swaggerYamlFileName}
+	return middleware.Redoc(options, nil)
+}
+```
+Run the server with the following command:
+
+	`$ go run main.go`
+
+Verify that the endpoint `/docs` is working and the swagger documentation is available at:
+
+	`http://localhost:9090/docs`
+
+The file openApi.go was created to expose the swagger documentation adding the following annotations:
+
+	`swagger:response`
+	`swagger:parameters`
+
+Into the file `products.go` the annotation `swagger:model` was added to add extra configuration to the swagger documentation.
