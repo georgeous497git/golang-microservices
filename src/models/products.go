@@ -1,13 +1,12 @@
-package data
+package models
 
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/go-playground/validator"
 	"io"
 	"regexp"
 	"time"
-
-	"github.com/go-playground/validator"
 )
 
 // Product defines the structure of a product
@@ -15,24 +14,24 @@ import (
 type Product struct {
 	// Product ID
 	// example: 1
-	Id          int     `json:"id"`
+	Id int `json:"id"`
 	// Name of the product
 	// required: true
-	Name        string  `json:"name" validate:"required"`
+	Name string `json:"name" validate:"required"`
 	// Description of the product
 	// required: true
-	Description string  `json:"description"`
+	Description string `json:"description"`
 	// Price of the product
 	// required: true
 	// example: 9.99
-	Price       float32 `json:"price" validate:"gt=0"`
+	Price float32 `json:"price" validate:"gt=0"`
 	// SKU of the product
 	// required: true
 	// example: `^[a-z]+-[0-9]+$`
-	Sku         string  `json:"sku" validate:"required,skuFormat"`
-	CreatedOn   string  `json:"-"`
-	UpdatedOn   string  `json:"-"`
-	DeletedOn   string  `json:"-"`
+	Sku       string `json:"sku" validate:"required,skuFormat"`
+	CreatedOn string `json:"-"`
+	UpdatedOn string `json:"-"`
+	DeletedOn string `json:"-"`
 }
 
 type Products []*Product

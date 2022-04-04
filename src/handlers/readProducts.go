@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"data"
+	"GoMicroservices/models"
 	"net/http"
 )
 
@@ -10,7 +10,7 @@ import (
 //Responses:
 //200: productsResponse
 func (ph *ProductsHandler) GetProducts(rw http.ResponseWriter, rq *http.Request) {
-	productList := data.GetProducts()
+	productList := models.GetProducts()
 	error := productList.ToJson(rw)
 
 	if error != nil {

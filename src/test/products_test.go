@@ -1,13 +1,13 @@
 package test
 
 import (
-	"data"
+	"GoMicroservices/models"
 	"testing"
 )
 
 func TestCheckValidation(t *testing.T) {
 
-	p := &data.Product{
+	p := &models.Product{
 		Name:  "Coffee Test",
 		Price: 10.00,
 		Sku:   "abc-123",

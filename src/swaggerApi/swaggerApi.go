@@ -1,11 +1,11 @@
-package openApi
+package swaggerApi
 
-import "data"
+import "GoMicroservices/models"
 
 // All these methods are not used into the logic of the application, but is used to create the swagger documentation UI
 // Language: go
-// Path: src/openApi/openApi.go
-// Swagger annotations are using Cross reference to the swagger documentation UI
+// Path: src/swaggerApi/swaggerApi.go
+// Swagger annotations are using Cross-reference to the swagger documentation UI
 //
 // example: swagger:response productsResponse
 //
@@ -15,12 +15,12 @@ import "data"
 // swagger:response productsResponse
 type productResponseWrapper struct {
 	// in: body
-	Body []data.Product
+	Body []models.Product
 }
 
 // This method is not used into the logic of the application, but is used to create the swagger documentation response
 // swagger:parameters CreateProduct
 type productCreatedResponseWrapper struct {
 	// in: body
-	Body data.Product
+	Body models.Product
 }

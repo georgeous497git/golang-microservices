@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"data"
+	"GoMicroservices/models"
 	"net/http"
 )
 
@@ -12,7 +12,7 @@ import (
 func (ph *ProductsHandler) AddProduct(rw http.ResponseWriter, rq *http.Request) {
 	ph.l.Println("Handle POST Product")
 
-	product := rq.Context().Value(KeyProduct{}).(data.Product)
+	product := rq.Context().Value(KeyProduct{}).(models.Product)
 
-	data.AddProduct(&product)
+	models.AddProduct(&product)
 }

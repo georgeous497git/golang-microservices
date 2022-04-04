@@ -1,8 +1,8 @@
 package main
 
 import (
+	"GoMicroservices/handlers"
 	"context"
-	"handlers"
 	"log"
 	"net/http"
 	"os"
@@ -15,6 +15,8 @@ import (
 
 // Global initialization for Gorilla implementation
 var serveMux *mux.Router
+
+// Global initialization for Swagger UI
 var swaggerYamlFileName string = "swaggerAPI-Products.yaml"
 var dirSwaggerYamlFile string = "../"
 
@@ -46,7 +48,7 @@ func setHttpMethodToHandler(l *log.Logger) {
 	routerPut.HandleFunc("/products/{id:[0-9]+}", productHandle.UpdateProduct)
 	routerPut.Use(productHandle.MiddlewareProductValidation)
 
-	// Making subrouter for main Router specifing HTTP verb POST
+	// Making subrouter for main Router specifying HTTP verb POST
 	routerPost := serveMux.Methods(http.MethodPost).Subrouter()
 	routerPost.HandleFunc("/products", productHandle.AddProduct)
 	routerPost.Use(productHandle.MiddlewareProductValidation)
@@ -54,11 +56,11 @@ func setHttpMethodToHandler(l *log.Logger) {
 	// Making subrouter for swagger documentation UI
 	routerSwagger := serveMux.Methods(http.MethodGet).Subrouter()
 	routerSwagger.Handle("/docs", frameMiddlewareDocs())
-	routerSwagger.Handle("/" + swaggerYamlFileName, http.FileServer(http.Dir(dirSwaggerYamlFile)))
+	routerSwagger.Handle("/"+swaggerYamlFileName, http.FileServer(http.Dir(dirSwaggerYamlFile)))
 
 }
 
-func frameMiddlewareDocs() http.Handler{
+func frameMiddlewareDocs() http.Handler {
 	options := middleware.RedocOpts{SpecURL: "/" + swaggerYamlFileName}
 	return middleware.Redoc(options, nil)
 }

@@ -8,6 +8,10 @@ bin/
 pkg/
 src/main
 src/github.com/*
+main
+go1.18
+.idea
 #
 #Utility files
 *.docx
+*.pdf

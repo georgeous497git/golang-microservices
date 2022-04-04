@@ -1,15 +1,15 @@
 package handlers
 
 import (
+	"GoMicroservices/models"
 	"context"
-	"data"
 	"fmt"
 	"net/http"
 )
 
 func (p ProductsHandler) MiddlewareProductValidation(nextHandler http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, rq *http.Request) {
-		product := data.Product{}
+		product := models.Product{}
 
 		error := product.FromJson(rq.Body)
 		if error != nil {

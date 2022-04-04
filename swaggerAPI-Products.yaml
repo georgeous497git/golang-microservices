@@ -36,7 +36,7 @@ definitions:
     - price
     - sku
     type: object
-    x-go-package: data
+    x-go-package: GoMicroservices/models
 host: localhost:9090
 info:
   description: |-

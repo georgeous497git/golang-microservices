@@ -27,6 +27,6 @@ func (hh *HelloHandler) ServeHTTP(rWriter http.ResponseWriter, request *http.Req
 		return
 	}
 
-	// To print back the data back as a response
+	// To print back the models back as a response
 	fmt.Fprintf(rWriter, "Hello %s", data)
 }

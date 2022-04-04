@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"data"
+	"GoMicroservices/models"
 	"net/http"
 	"strconv"
 
@@ -21,10 +21,10 @@ func (ph *ProductsHandler) UpdateProduct(rw http.ResponseWriter, rq *http.Reques
 		return
 	}
 
-	product := rq.Context().Value(KeyProduct{}).(data.Product)
-	error = data.UpdateProduct(id, &product)
+	product := rq.Context().Value(KeyProduct{}).(models.Product)
+	error = models.UpdateProduct(id, &product)
 
-	if error == data.ErrProductNotFound {
+	if error == models.ErrProductNotFound {
 		http.Error(rw, "Product not found", http.StatusNotFound)
 		return
 	}
