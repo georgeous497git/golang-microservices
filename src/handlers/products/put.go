@@ -1,16 +1,18 @@
-package handlers
+package products
 
 import (
 	"GoMicroservices/models"
+	"encoding/json"
 	"net/http"
 	"strconv"
 
 	"github.com/gorilla/mux"
 )
 
-func (ph *ProductsHandler) UpdateProduct(rw http.ResponseWriter, rq *http.Request) {
+func PutProduct(rw http.ResponseWriter, rq *http.Request) {
 
-	ph.l.Println("Handle PUT Product")
+	//TODO add the log variable
+	//ph.l.Println("Handle PUT Product")
 
 	//Gorilla Mux provides and method ´mux.Vars(rq) to get the variables from request object´
 	variables := mux.Vars(rq)
@@ -21,7 +23,15 @@ func (ph *ProductsHandler) UpdateProduct(rw http.ResponseWriter, rq *http.Reques
 		return
 	}
 
-	product := rq.Context().Value(KeyProduct{}).(models.Product)
+	product := models.Product{}
+	decoderError := json.NewDecoder(rq.Body).Decode(&product)
+
+	if decoderError != nil {
+		http.Error(rw, decoderError.Error(), http.StatusBadRequest)
+		return
+	}
+
+	//product := rq.Context().Value(handlers.KeyProduct{}).(models.Product)
 	error = models.UpdateProduct(id, &product)
 
 	if error == models.ErrProductNotFound {

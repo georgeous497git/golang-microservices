@@ -1,4 +1,4 @@
-package handlers
+package server
 
 import (
 	"fmt"
@@ -20,7 +20,7 @@ func (gh *GoodbyeHandler) ServeHTTP(rWriter http.ResponseWriter, request *http.R
 	data, error := ioutil.ReadAll(request.Body)
 
 	if error != nil {
-		http.Error(rWriter, "Ooops something fails!", http.StatusBadRequest)
+		http.Error(rWriter, "Oops something fails!", http.StatusBadRequest)
 		return
 	}
 

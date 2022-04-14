@@ -1,29 +1,24 @@
-package main
+package server
 
 import (
 	"GoMicroservices/handlers"
 	"context"
+	"github.com/go-openapi/runtime/middleware"
+	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
-
-	"github.com/go-openapi/runtime/middleware"
-	"github.com/gorilla/mux"
 )
+
+var swaggerYamlFileName string = "swaggerAPI-Products.yaml"
+var dirSwaggerYamlFile string = "../"
 
 // Global initialization for Gorilla implementation
 var serveMux *mux.Router
 
-// Global initialization for Swagger UI
-var swaggerYamlFileName string = "swaggerAPI-Products.yaml"
-var dirSwaggerYamlFile string = "../"
-
-func main() {
-
-	log.Println("Server is listening...")
-
+func InitServer() {
 	logger := log.New(os.Stdout, "go-microservices", log.LstdFlags)
 
 	initializeGorillaRouter()
@@ -36,22 +31,22 @@ func initializeGorillaRouter() {
 	serveMux = mux.NewRouter()
 }
 
-func setHttpMethodToHandler(l *log.Logger) {
-	productHandle := callProductHandler(l)
+func setHttpMethodToHandler(logger *log.Logger) {
+	productHandle := callProductHandler(logger)
 
 	// Making subrouter for main Router specifing HTTP verb GET
 	routerGet := serveMux.Methods(http.MethodGet).Subrouter()
-	routerGet.HandleFunc("/products", productHandle.GetProducts)
+	routerGet.HandleFunc("/products", productHandle.Get)
 
 	// Making subrouter for main Router specifing HTTP verb PUT
 	routerPut := serveMux.Methods(http.MethodPut).Subrouter()
-	routerPut.HandleFunc("/products/{id:[0-9]+}", productHandle.UpdateProduct)
-	routerPut.Use(productHandle.MiddlewareProductValidation)
+	routerPut.HandleFunc("/products/{id:[0-9]+}", productHandle.Put)
+	//routerPut.Use(productHandle.MiddlewareProductValidation)
 
 	// Making subrouter for main Router specifying HTTP verb POST
 	routerPost := serveMux.Methods(http.MethodPost).Subrouter()
-	routerPost.HandleFunc("/products", productHandle.AddProduct)
-	routerPost.Use(productHandle.MiddlewareProductValidation)
+	routerPost.HandleFunc("/products", productHandle.Post)
+	//routerPost.Use(productHandle.MiddlewareProductValidation)
 
 	// Making subrouter for swagger documentation UI
 	routerSwagger := serveMux.Methods(http.MethodGet).Subrouter()
@@ -60,13 +55,13 @@ func setHttpMethodToHandler(l *log.Logger) {
 
 }
 
+func callProductHandler(logger *log.Logger) *handlers.ProductHandler {
+	return handlers.NewProductHandler(logger)
+}
+
 func frameMiddlewareDocs() http.Handler {
 	options := middleware.RedocOpts{SpecURL: "/" + swaggerYamlFileName}
 	return middleware.Redoc(options, nil)
-}
-
-func callProductHandler(l *log.Logger) *handlers.ProductsHandler {
-	return handlers.NewProductsHandler(l)
 }
 
 func configureServeMux() {

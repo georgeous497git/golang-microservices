@@ -1,4 +1,4 @@
-package handlers
+package products
 
 import (
 	"GoMicroservices/models"
@@ -9,7 +9,11 @@ import (
 //Returns a list of products
 //Responses:
 //200: productsResponse
-func (ph *ProductsHandler) GetProducts(rw http.ResponseWriter, rq *http.Request) {
+func GetProducts(rw http.ResponseWriter, rq *http.Request) {
+
+	//TODO add the log variable
+	//ph.log.Println("Handle GET Product")
+
 	productList := models.GetProducts()
 	error := productList.ToJson(rw)
 

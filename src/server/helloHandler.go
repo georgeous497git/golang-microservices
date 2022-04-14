@@ -1,4 +1,4 @@
-package handlers
+package server
 
 import (
 	"fmt"
@@ -8,12 +8,12 @@ import (
 )
 
 type HelloHandler struct {
-	l *log.Logger
+	logger *log.Logger
 }
 
 //This function will return de Hello Handler (NOTE: We are implementing Dependecy Injection due to log.Logger)
-func NewHelloHandler(l *log.Logger) *HelloHandler {
-	return &HelloHandler{l}
+func NewHelloHandler(logger *log.Logger) *HelloHandler {
+	return &HelloHandler{logger}
 }
 
 //This signature satisfy the HTTP Handler Interface
